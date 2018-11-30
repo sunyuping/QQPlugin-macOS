@@ -74,43 +74,17 @@ static char tkAutoReplyWindowControllerKey;         //  自动回复窗口的关
                                                            sessType:msgModel.msgSessionType
                                                              msgIds:@[@(msgModel.msgID)]] firstObject];
     
-    NSString *revokeMsg = @"[非文本信息]";
-    switch (revokeMsgModel.msgType) {
-        case 1024: {
-            NSArray *msgContent =  [self msgContentsFromMessageModel:revokeMsgModel];
-            if (msgContent.count > 1) {
-                revokeMsg = @"[富文本]";
-            } else if (msgContent.count == 1) {
-                NSDictionary *msgDict = msgContent.firstObject;
-                if ([msgDict[@"msg-type"] integerValue] == 0) {         // 纯文字
-                    revokeMsg = msgDict[@"text"];
-                    if (revokeMsg.length > 35) {
-                        revokeMsg = [[revokeMsg substringToIndex:35] stringByAppendingString:@"…"];
-                    }
-                } else if ([msgDict[@"msg-type"] integerValue] == 1) {  // 纯图片
-                    revokeMsg = @"[图片]";
-                }
+    NSString *revokeMsg = [NSString stringWithFormat:@"%@: [非文本信息]",[revokeMsgModel senderDisplayName]];
+
+    MQSessionID *sessionID = [objc_getClass("MQSessionID") sessionIdWithChatType:revokeMsgModel.chatType andUin:[revokeMsgModel.uin longLongValue]];
+    if ((revokeMsgModel != 0x0) && ([revokeMsgModel chatType] != 0x4000)) {
+        if ([revokeMsgModel msgType] != 0x4) {
+            if ([revokeMsgModel chatType] != 0x10000) {
+                revokeMsg = [(NSMutableAttributedString *)[objc_getClass("MQRecentMsgTips") tipsOfContentMsg:revokeMsgModel sessionId:sessionID]  string];
             }
-            break;
         }
-        case 3:
-            revokeMsg = @"[语音]";
-            break;
-        case 4:
-            revokeMsg = @"[文件(视频)]";
-            break;
-        case 181:
-            revokeMsg = @"[视频]";
-            break;
-        case 140:
-            revokeMsg = @"[分享(位置|联系人|收藏)]";
-            break;
-        default:
-            revokeMsg = @"[非文本消息]";
-            break;
     }
-    
-    NSString *revokeTipContent = [NSString stringWithFormat:@"TK 拦截到一条撤回消息:\n\t%@：%@", revokeUserName, revokeMsg];
+    NSString *revokeTipContent = [NSString stringWithFormat:@"TK 拦截到一条撤回消息:\n\t%@", revokeMsg];
     if (msgModel.isSelfSend) {
         revokeTipContent = @"你 撤回了一条消息";
     }
@@ -133,7 +107,9 @@ static char tkAutoReplyWindowControllerKey;         //  自动回复窗口的关
 - (void)hook_notifyLoginWithAccount:(id)arg1 resultCode:(long long)arg2 userInfo:(id)arg3 {
     [self hook_notifyLoginWithAccount:arg1 resultCode:arg2 userInfo:arg3];
     
-    [[TKWebServerManager shareManager] startServer];
+    if ([[TKQQPluginConfig sharedConfig] alfredEnable]) {
+        [[TKWebServerManager shareManager] startServer];
+    }
 }
 
 - (void)hook_notifyForceLogoutWithAccount:(id)arg1 type:(long long)arg2 tips:(id)arg3 {
@@ -265,9 +241,14 @@ static char tkAutoReplyWindowControllerKey;         //  自动回复窗口的关
     //        自动回复
     NSMenuItem *autoReplyItem = [[NSMenuItem alloc] initWithTitle:@"自动回复设置" action:@selector(onAutoReply:) keyEquivalent:@"K"];
     
+    //        开启 alfred
+    NSMenuItem *enableAlfredItem = [[NSMenuItem alloc] initWithTitle:@"开启 alfred" action:@selector(onEnableAlfred:) keyEquivalent:@""];
+    enableAlfredItem.state = [[TKQQPluginConfig sharedConfig] alfredEnable];
+    
     NSMenu *subMenu = [[NSMenu alloc] initWithTitle:@"QQ小助手"];
     [subMenu addItem:preventRevokeItem];
     [subMenu addItem:autoReplyItem];
+    [subMenu addItem:enableAlfredItem];
     
     NSMenuItem *menuItem = [[NSMenuItem alloc] init];
     [menuItem setTitle:@"QQ小助手"];
@@ -303,6 +284,16 @@ static char tkAutoReplyWindowControllerKey;         //  自动回复窗口的关
     [autoReplyWC showWindow:autoReplyWC];
     [autoReplyWC.window center];
     [autoReplyWC.window makeKeyWindow];
+}
+
+- (void)onEnableAlfred:(NSMenuItem *)item {
+    item.state = !item.state;
+    if (item.state) {
+        [[TKWebServerManager shareManager] startServer];
+    } else {
+        [[TKWebServerManager shareManager] endServer];
+    }
+    [[TKQQPluginConfig sharedConfig] setAlfredEnable:item.state];
 }
 
 #pragma mark - 替换 NSSearchPathForDirectoriesInDomains & NSHomeDirectory

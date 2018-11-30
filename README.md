@@ -11,10 +11,15 @@ QQ 小助手
 
 * 消息自动回复
 * 消息防撤回
-* alfred 快捷发送消息 & 打开窗口 
+* alfred 快捷发送消息 & 打开窗口 & 查看聊天记录
 
 ---
 
+### 更新日志
+* 新增 alfred 开关(2018-10-26)   
+* 修复安全漏洞(2018-10-23)
+
+---
 ### 安装
 
 ~~第一次安装需要输入密码，仅是为了获取写入微信文件夹的权限~~
@@ -54,9 +59,7 @@ QQ 小助手
 
 ![自动回复设置.png](./Other/ScreenShots/auto_reply.png)
 
-* Alfred 使用：跟 微信`Alfred`类似，关键字为`q`. 插件在 Other 文件夹中
-![QQ-alfred-workflow](./Other/ScreenShots/alfred_workflow.png)
-
+* Alfred 使用：跟 微信`Alfred`类似，关键字为`q`. 
 
 ---
 
@@ -84,7 +87,9 @@ QQ 小助手
 
 ---
 
-#### 听说你想请我喝下午茶？😏
- 
-<img src="http://upload-images.jianshu.io/upload_images/965383-cbc86dc1d75a6242.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" height="250" hspace="50"/>&nbsp;&nbsp;&nbsp;<img src="http://upload-images.jianshu.io/upload_images/965383-76a1c7c91b987e1a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" height="250" hspace="50"  />
+### 免责声明
+* 使用插件有风险，使用需谨慎。
+* 本项目不可用于商业和个人其他意图。若使用不当，请使用者自行承担。
+* 如有侵权，请联系本人。tkk.ioser@gmail.com
+
 
